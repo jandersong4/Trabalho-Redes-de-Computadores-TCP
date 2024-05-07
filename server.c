@@ -14,8 +14,8 @@
 
 void usage(int argc, char **argv)
 {
-    printf("usage: %s <v4|v6> <server port>\n", argv[0]);
-    printf("example: %s v4 51511", argv[0]);
+    printf("usage: %s <ipv4|ipv6> <server port>\n", argv[0]);
+    printf("example: %s ipv4 51511", argv[0]);
     exit(EXIT_FAILURE);
 }
 
@@ -28,18 +28,14 @@ struct client_data
 double haversine(double lat1, double lon1,
                  double lat2, double lon2)
 {
-    // distance between latitudes
-    // and longitudes
     double dLat = (lat2 - lat1) *
                   M_PI / 180.0;
     double dLon = (lon2 - lon1) *
                   M_PI / 180.0;
 
-    // convert to radians
     lat1 = (lat1)*M_PI / 180.0;
     lat2 = (lat2)*M_PI / 180.0;
 
-    // apply formulae
     double a = pow(sin(dLat / 2), 2) +
                pow(sin(dLon / 2), 2) *
                    cos(lat1) * cos(lat2);
@@ -54,16 +50,6 @@ void *client_thread(void *data)
                             -43.9451};
 
     struct client_data *cdata = (struct client_data *)data;
-    struct sockaddr *caddr = (struct sockaddr *)(&cdata->storage);
-
-    char caddrstr[BUFSZ];
-    addrtostr(caddr, caddrstr, BUFSZ);
-    printf("[log] connection from %s\n", caddrstr);
-
-    // char buf[BUFSZ];
-    // memset(buf, 0, BUFSZ);
-    // size_t count = recv(cdata->csock, buf, BUFSZ - 1, 0);
-    // printf("[msg] %s, %d bytes %s\n", caddrstr, (int)count, buf);
 
     Coordinate coordCli;
     memset(&coordCli, 0, sizeof(coordCli));
@@ -73,10 +59,7 @@ void *client_thread(void *data)
         perror("recv");
         exit(EXIT_FAILURE);
     }
-    printf("[msg] Latitude: %f\n", coordCli.latitude);
-    printf("[msg] Longitude: %f\n", coordCli.longitude);
     double distance = haversine(coordServ.latitude, coordServ.longitude, coordCli.latitude, coordCli.longitude) * 1000;
-    printf("%f Metros \n", distance);
     while (distance > 0)
     {
         distance = distance - 400;
@@ -85,19 +68,11 @@ void *client_thread(void *data)
         {
             logexit("send");
         }
-        // close(cdata->csock);
 
         usleep(2000000);
     }
     printf("O motorista chegou!\n");
-    // printf("[msg] %s, %d bytes %s\n", caddrstr, (int)count, buf);
 
-    // sprintf(buf, "remote endpoint: %.1000s\n", caddrstr);
-    // count = send(cdata->csock, buf, strlen(buf) + 1, 0);
-    // if (count != strlen(buf) + 1)
-    // {
-    //     logexit("send");
-    // }
     close(cdata->csock);
     pthread_exit(EXIT_SUCCESS);
 }
@@ -105,21 +80,13 @@ void *client_thread(void *data)
 int main(int argc, char **argv)
 {
 
-    // if (argc < 3) // verifica se o programa foi chamado corretamente
-    // {
-    //     usage(argc, argv);
-    // }
-
     struct sockaddr_storage storage;
-    // são passados a versão (ipv4 ou ipv6 e a porta em que o programa rodará)
-    // if (0 != server_sockaddr_init(argv[1], argv[2], &storage))
-    if (0 != server_sockaddr_init("v6", "5151", &storage)) // passamos como padrão IPV4 e a porta 5151
+    if (0 != server_sockaddr_init(argv[1], argv[2], &storage))
     {
         usage(argc, argv);
     }
 
     int s;
-    // socket que recebe conexão
     s = socket(storage.ss_family, SOCK_STREAM, 0);
     if (s == -1)
     {
@@ -143,9 +110,7 @@ int main(int argc, char **argv)
         logexit("listen");
     }
 
-    char addrstr[BUFSZ];
-    addrtostr(addr, addrstr, BUFSZ);
-    printf("bound to %s, Aguardando Solicitação.\n", addrstr);
+    printf("Aguardando Solicitação.\n");
 
     while (1)
     {
@@ -153,17 +118,15 @@ int main(int argc, char **argv)
         struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
         socklen_t caddrlen = sizeof(cstorage);
 
-        int csock = accept(s, caddr, &caddrlen); // socket que conversa com o cliente
+        int csock = accept(s, caddr, &caddrlen);
         if (csock == -1)
         {
             logexit("accept");
         }
         int acceptClient = -1;
-        printf("---------------------------------\n");
         printf("Corrida Disponivel: \n");
         printf("0 - Recusar\n");
         printf("1 - Aceitar\n");
-        printf("-----------------------------------\n");
         scanf("%d", &acceptClient);
         if (acceptClient == 0)
         {
@@ -177,7 +140,6 @@ int main(int argc, char **argv)
         }
         else if (acceptClient == 1)
         {
-            // string vazia apenas como confirmação
             char *msg = "";
             int count = send(csock, msg, strlen(msg) + 1, 0);
             if (count != strlen(msg) + 1)

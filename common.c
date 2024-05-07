@@ -6,26 +6,24 @@
 
 void logexit(const char *msg)
 {
-    perror(msg); // imprime a mensagem que passamos e imprime o que aconteceu
+    perror(msg);
     exit(EXIT_FAILURE);
 }
 
 int addrparse(const char *addrstr, const char *portstr, struct sockaddr_storage *storage)
 {
-    // se receber nulo so desistimos e nao fazemos nada
     if (addrstr == NULL || portstr == NULL)
     {
         return -1;
     }
-    uint16_t port = (uint16_t)atoi(portstr); // unsigned short
+    uint16_t port = (uint16_t)atoi(portstr);
     if (port == 0)
     {
         return -1;
     }
-    port = htons(port); // host to network short
+    port = htons(port);
 
-    // resolvendo para o ipv4
-    struct in_addr inaddr4; // 32-bit IP address
+    struct in_addr inaddr4;
     if (inet_pton(AF_INET, addrstr, &inaddr4))
     {
         struct sockaddr_in *addr4 = (struct sockaddr_in *)storage;
@@ -34,18 +32,16 @@ int addrparse(const char *addrstr, const char *portstr, struct sockaddr_storage 
         addr4->sin_addr = inaddr4;
         return 0;
     }
-    struct in6_addr inaddr6; // 128-bit IPv6 address
+    struct in6_addr inaddr6;
     if (inet_pton(AF_INET6, addrstr, &inaddr6))
     {
         struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)storage;
         addr6->sin6_family = AF_INET6;
         addr6->sin6_port = port;
-        // addr6->sin6_addr = inaddr6;
         memcpy(&(addr6->sin6_addr), &inaddr6, sizeof(inaddr6));
         return 0;
     }
 
-    // se nao der parse em nenhum dos protocolos
     return -1;
 }
 
@@ -63,7 +59,7 @@ void addrtostr(const struct sockaddr *addr, char *str, size_t strsize)
         {
             logexit("ntop");
         }
-        port = ntohs(addr4->sin_port); // network to host short
+        port = ntohs(addr4->sin_port);
     }
     else if (addr->sa_family == AF_INET6)
     {
@@ -97,7 +93,7 @@ int server_sockaddr_init(const char *proto, const char *portstr, struct sockaddr
     port = htons(port); // host to network short
 
     memset(storage, 0, sizeof(*storage));
-    if (0 == strcmp(proto, "v4"))
+    if (0 == strcmp(proto, "ipv4"))
     {
         struct sockaddr_in *addr4 = (struct sockaddr_in *)storage;
         addr4->sin_family = AF_INET;
@@ -105,7 +101,7 @@ int server_sockaddr_init(const char *proto, const char *portstr, struct sockaddr
         addr4->sin_port = port;
         return 0;
     }
-    else if (0 == strcmp(proto, "v6"))
+    else if (0 == strcmp(proto, "ipv6"))
     {
         struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)storage;
         addr6->sin6_family = AF_INET6;
