@@ -6,7 +6,7 @@ Este trabalho prático proporciona uma experiência prática no desenvolvimento 
 
 **Tipo de conexão:** TCP
 
-## Descrição Sobre a atividade:
+## Descrição da atividade:
 
 Neste trabalho prático, será desenvolvida uma aplicação de console que simula o
 funcionamento básico do aplicativo Uber. O cliente desempenha o papel do usuário,
@@ -18,9 +18,9 @@ Cunha como referência para a estruturação do código.
 
 ## Execução do Programa
 
-** Build and Run: É necessário apenas rodar um comando "Make" no diretorio do projeto
-** Executando servidor: ./server [version] [port]
-\*\*Executando client: ./client [address] [port]
-Exemplo: 
+* **Build**: É necessário apenas rodar um comando "Make" no diretorio do projeto
+* **Executando servidor**: ./server [version] [port]
+* **Executando client**: ./client [address] [port]
+**Exemplo**: 
 ./server ipv4 5151
 ./client 127.0.0.1 5151
