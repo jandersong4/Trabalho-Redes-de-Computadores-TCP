@@ -16,7 +16,7 @@ Para a realização deste trabalho, além do conhecimento teórico adquirido dur
 disciplina de Rede de Computadores, foram utilizadas as videoaulas do Professor Italo
 Cunha como referência para a estruturação do código.
 
-##Execução do Programa
+## Execução do Programa
 
 **Build and Run: É necessário apenas rodar um comando "Make" no diretorio do projeto
 **Executando servidor: ./server [version] [port]
